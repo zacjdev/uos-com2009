@@ -68,7 +68,6 @@ class Eight:
 
     def main_loop(self):
         status = ""
-        wait = 0
         direction = "clockwise"
 
         while not self.ctrl_c:
@@ -76,22 +75,28 @@ class Eight:
                 self.vel = Twist()
                 status = "init"
             # check whether direction needs changing
-            elif abs(self.theta_z0 - self.theta_z) >= pi*2 and wait > 5:
+            elif abs(self.theta_z0 - self.theta_z) >= pi*2:
                 # If the robot has turned 360 degrees (in radians), change direction to complete the figure 0
+                # stop
                 self.vel = Twist()
+                # reset direction
                 self.theta_z0 = self.theta_z
                 status = ""
-                wait = 0
-            # 
-            else:
+
                 if direction == "clockwise":
-                    self.vel = Twist()
-                    self.vel.angular.z = 0.2
-                    status = "turning"
-                    
+                    # switch to anticlockwise
+                    direction = "anticlockwise"
+
+                    self.vel.angular.z = -0.2
+                    self.vel.linear.x = 0.1
+                    status = "turning"          
                 elif direction == "anticlockwise":
-                    self.vel = Twist()
-            wait += 1
+                    # switch to clockwise
+                    direction = "clockwise"
+
+                    self.vel.angular.z = 0.2
+                    self.vel.linear.x = 0.1
+
 
             self.pub.publish(self.vel)
             self.print_stuff(status)
