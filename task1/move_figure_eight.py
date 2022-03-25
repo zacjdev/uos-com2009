@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# move_square from lab class
+# Adapted from move_square from lab class
 
 
 import rospy
@@ -9,7 +9,7 @@ from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from math import sqrt, pow, pi
 
-class Square:
+class Eight:
     def callback_function(self, odom_data):
         # obtain the orientation and position co-ords:
         or_x = odom_data.pose.pose.orientation.x
@@ -33,7 +33,7 @@ class Square:
             self.theta_z0 = self.theta_z
 
     def __init__(self):
-        node_name = "move_square"
+        node_name = "move_figure_eight"
         
         self.startup = True
 
@@ -98,8 +98,8 @@ class Square:
             self.rate.sleep()
 
 if __name__ == '__main__':
-    movesquare_instance = Square()
+    moveeight_instance = Eight()
     try:
-        movesquare_instance.main_loop()
+        moveeight_instance.main_loop()
     except rospy.ROSInterruptException:
         pass
