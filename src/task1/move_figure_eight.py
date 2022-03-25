@@ -63,23 +63,16 @@ class Eight:
     
     def print_stuff(self, a_message):
         print(a_message)
-        print(f"current velocity: lin.x = {self.vel.linear.x:.1f}, ang.z = {self.vel.angular.z:.1f}")
-        print(f"current odometry: x = {self.x:.3f}, y = {self.y:.3f}, theta_z = {self.theta_z:.3f}")
+        print(f"current odometry: x={self.x:.3f} [m] , y={self.y:.3f} [m] , yaw={(self.theta_z * (180 / pi)):.3f} [degrees]")
 
     def main_loop(self):
         status = ""
-        direction = "clockwise"
-        self.vel.angular.z = 0.2
+        direction = "anticlockwise"
+        self.vel.angular.z = -0.2
         self.vel.linear.x = 0.1
         wait = 0
 
         while not self.ctrl_c:
-            print(str(self.theta_z) + "THETA Z AND WAIT" + str(wait) + 
-            str(bool(self.theta_z >= -0.05)) + 
-            str(bool((self.theta_z) <= 0.01)) +
-            str(bool(wait > 5)) + "DIRECTION" + direction
-            )
-            
             
             if self.startup:
                 self.vel = Twist()
@@ -96,22 +89,20 @@ class Eight:
                 self.theta_z0 = self.theta_z
                 status = ""
 
-                if direction == "clockwise":
-                    # switch to anticlockwise
-                    print("Changing direction to anticlockwise")
-                    direction = "anticlockwise"
-
-                    self.vel.angular.z = -0.2
-                    self.vel.linear.x = 0.1
-                    status = "turning"          
-                elif direction == "anticlockwise":
+                if direction == "anticlockwise":
                     # switch to clockwise
                     print("Changing direction to clockwise")
                     direction = "clockwise"
-
                     self.vel.angular.z = 0.2
                     self.vel.linear.x = 0.1
-                wait = 0
+                    wait = 0
+                elif direction == "clockwise":
+                    # stop moving after figure 8
+                    print("Changing direction to anticlockwise")
+                    direction = "anticlockwise"
+                    self.vel = Twist()  
+                    wait = 0
+
             wait+= 1
 
             self.pub.publish(self.vel)
