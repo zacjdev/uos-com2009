@@ -64,6 +64,8 @@ class Eight:
     def print_stuff(self, a_message):
         print(a_message)
         print(f"current odometry: x={self.x:.3f} [m] , y={self.y:.3f} [m] , yaw={(self.theta_z * (180 / pi)):.3f} [degrees]")
+        print("z = " + str(self.theta_z))
+        print("z0 = " + str(self.theta_z0))
 
     def main_loop(self):
         status = ""
@@ -71,16 +73,19 @@ class Eight:
         self.vel.angular.z = -0.2
         self.vel.linear.x = 0.1
         wait = 0
+        stop = 0
 
         while not self.ctrl_c:
-            
+            print(direction)
             if self.startup:
                 self.vel = Twist()
                 status = "init"
-            # check whether direction needs changing
             
-
-            elif -0.01 > self.theta_z >= -0.05 and wait > 5:
+            if self.theta_z0 == 0.0:
+                self.theta_z0 = self.theta_z
+            
+            # check whether direction needs changing
+            elif self.theta_z0 + -0.01 > self.theta_z >= self.theta_z0 + (-0.05) and wait > 50 and stop == 0:
                 # If the robot has turned 360 degrees (in radians), change direction to complete the figure 0
                 # stop
                 print("Changing direction!!!")
@@ -102,6 +107,7 @@ class Eight:
                     direction = "anticlockwise"
                     self.vel = Twist()  
                     wait = 0
+                    stop = 1
 
             wait+= 1
 
