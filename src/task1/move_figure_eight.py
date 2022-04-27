@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 # Adapted from move_square from lab class
+
+# roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
 # rosrun assignment src/task1/move_figure_eight.py
 
 import rospy
@@ -61,16 +63,18 @@ class Eight:
         self.pub.publish(Twist())
         self.ctrl_c = True
     
-    def print_stuff(self, a_message):
+    def print_data(self, a_message):
         print(a_message)
         print(f"current odometry: x={self.x:.3f} [m] , y={self.y:.3f} [m] , yaw={(self.theta_z * (180 / pi)):.3f} [degrees]")
+        #print("Current z0", self.theta_z0, "Current z", self.theta_z)
 
     def main_loop(self):
         status = ""
         direction = "anticlockwise"
-        self.vel.angular.z = -0.2
+        self.vel.angular.z = -0.22
         self.vel.linear.x = 0.1
         wait = 0
+        self.theta_z0 = self.theta_z
 
         while not self.ctrl_c:
             
@@ -79,8 +83,10 @@ class Eight:
                 status = "init"
             # check whether direction needs changing
             
-
-            elif -0.01 > self.theta_z >= -0.05 and wait > 5:
+            elif wait == 1 and self.theta_z0 == 0:
+                self.theta_z0 = self.theta_z
+                
+            elif -0.01 + self.theta_z0 > self.theta_z0 + self.theta_z >= -0.05 + self.theta_z0 and wait > 50:
                 # If the robot has turned 360 degrees (in radians), change direction to complete the figure 0
                 # stop
                 print("Changing direction!!!")
@@ -93,7 +99,7 @@ class Eight:
                     # switch to clockwise
                     print("Changing direction to clockwise")
                     direction = "clockwise"
-                    self.vel.angular.z = 0.2
+                    self.vel.angular.z = 0.22
                     self.vel.linear.x = 0.1
                     wait = 0
                 elif direction == "clockwise":
@@ -106,7 +112,7 @@ class Eight:
             wait+= 1
 
             self.pub.publish(self.vel)
-            self.print_stuff(status)
+            self.print_data(status)
             self.rate.sleep()
 
 if __name__ == '__main__':
